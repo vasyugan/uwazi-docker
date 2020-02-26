@@ -1,5 +1,5 @@
-FROM node:8-slim
-LABEL maintainer="Emerson Rocha <rocha@ieee.org>"
+FROM node:10.17-stretch
+LABEL maintainer="Johannes Rohr <jorohr@gmail.com>"
 
 # see https://github.com/nodejs/docker-node#how-to-use-this-image
 
@@ -13,16 +13,17 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 
 # Install mongo & mongorestore (this is used only for database initialization, not on runtime)
 # So much space need, see 'After this operation, 184 MB of additional disk space will be used.'
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5 \
-  && echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main" | tee /etc/apt/sources.list.d/mongodb-org-3.6.list \
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.0.asc | apt-key add - \
+  && echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list \
   && apt-get update \
   && apt-get install -y mongodb-org-shell mongodb-org-tools \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-## Download Uwazi v1.4
-RUN git clone -b v1.4 --single-branch --depth=1 https://github.com/huridocs/uwazi.git /home/node/uwazi/ \
+## Download Uwazi v1.6
+RUN git clone -b master --single-branch --depth=1 https://github.com/huridocs/uwazi.git /home/node/uwazi/ \
   && chown node:node -R /home/node/uwazi/ \
   && cd /home/node/uwazi/ \
+  && npm config set scripts-prepend-node-path auto \
   && yarn install \
   && yarn production-build
 
