@@ -19,7 +19,6 @@ if [ "$IS_FIRST_RUN" = "true" ] ; then
     echo "uwazi-docker: If no fatal errors occurred, you will not need to use this command again"
     exit 0
 elif [ "$UPGRADE" = "true" ] ; then
-    echo "uwazi-docker: Environment variable UPGRADE is true. performing reindex"
 
     echo "\n\nuwazi-docker: Deleting ${DBHOST:-mongo} ${DATABASE_NAME:-uwazi_development} MongoDB database"
    
@@ -27,6 +26,11 @@ elif [ "$UPGRADE" = "true" ] ; then
    
     echo "\n\nuwazi-docker: Importing $DB_RESTORE_PATH to ${DBHOST:-mongo} ${DATABASE_NAME:-uwazi_development} MongoDB database"
     mongorestore -h ${DBHOST:-mongo} $DB_RESTORE_PATH --db=${DATABASE_NAME:-uwazi_development}
+    echo "uwazi-docker: Environment variable UPGRADE is true. performing reindex"
+    echo running yarn reindex
+    yarn migrate 
+    echo running yarn migrate
+    yarn reindex
 
 else
     echo "uwazi-docker: Enviroment variable IS_FIRST_RUN is not true. Assume MongoDB and Elastic Search provide already are intialized"

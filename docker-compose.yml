@@ -2,7 +2,7 @@ version: "3"
 
 services:
   uwazi:
-    image: jorohr/uwazi:master
+    image: jorohr/uwazi:1.10.1
     build: ./
     working_dir: /home/node/uwazi
     ports:
@@ -10,6 +10,7 @@ services:
     environment:
       - DBHOST=mongo
       - DATABASE_NAME=uwazi_development
+      - NODE_OPTIONS=--max-http-header-size=96384
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       #- UPLOADS_FOLDER=/home/node/documents
       # - LOGS_DIR=/path/to/log
@@ -23,13 +24,11 @@ services:
       - mongo
 
   elasticsearch:
-    image: elasticsearch:7.4.1
+    image: elasticsearch:7.9.1
     restart: unless-stopped
     command: elasticsearch -Expack.security.enabled=false -Ediscovery.type=single-node -Ecluster.name=docker-cluster -Ehttp.port=9200 -Ehttp.cors.allow-origin="http://localhost:51000" -Ehttp.cors.enabled=true -Ehttp.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization -Ehttp.cors.allow-credentials=true
     environment:
-      - cluster.name=docker-cluster
       - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
-      - xpack.security.enabled=false
     ulimits:
       memlock:
         soft: -1
@@ -51,12 +50,12 @@ services:
   #     - elasticsearch
 
   mongo:
-    image: mongo:4.0
+    image: mongo:4.2
     restart: unless-stopped
     volumes:
       - ./data/mongo:/data/db
       - ./dump:/dump
-    command: mongod --smallfiles
+    command: mongod 
     logging:
       options:
         max-size: 10m
